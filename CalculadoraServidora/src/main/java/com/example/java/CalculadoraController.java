@@ -1,68 +1,40 @@
 package com.example.java;
 
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/operation")
+@CrossOrigin(origins = "*")
 public class CalculadoraController {
 
-    /**
-     * Método para operações matemáticas.
-     * Este método com Retry automático: em caso de falhaa, tenta novamente 3 vezes.
-     */
-    @Retryable(
-            maxAttempts = 3,                     // tenta 3 vezes
-            backoff = @Backoff(delay = 1000)     // espera 1s entre tentativas
-    )
-    private double calcular(String operacao, double p1, double p2) {
+    @PostMapping("/soma/{a}/{b}")
+    public double soma(@PathVariable double a, @PathVariable double b) {
+        System.out.println("Soma: " + a + " + " + b);
+        return a + b;
+    }
 
-        switch (operacao) {
-            case "soma":
-                return p1 + p2;
+    @PostMapping("/subtracao/{a}/{b}")
+    public double subtracao(@PathVariable double a, @PathVariable double b) {
+        System.out.println("Subtração: " + a + " - " + b);
+        return a - b;
+    }
 
-            case "subtracao":
-                return p1 - p2;
+    @PostMapping("/multiplicacao/{a}/{b}")
+    public double multiplicacao(@PathVariable double a, @PathVariable double b) {
+        System.out.println("Multiplicação: " + a + " * " + b);
+        return a * b;
+    }
 
-            case "multiplicacao":
-                return p1 * p2;
-
-            case "divisao":
-                if (p2 == 0) {
-                    throw new IllegalArgumentException("Divisão por zero não permitida");
-                }
-                return p1 / p2;
-
-            default:
-                throw new IllegalArgumentException("Operação inválida");
+    @PostMapping("/divisao/{a}/{b}")
+    public double divisao(@PathVariable double a, @PathVariable double b) {
+        System.out.println("Divisão: " + a + " / " + b);
+        if (b == 0) {
+            throw new ArithmeticException("Divisão por zero");
         }
-    }
-
-    /**
-     * Endpoint POST para SOMA
-     */
-    @PostMapping("/soma")
-    public CalculadoraResponse soma(@RequestBody OperationRequest req) {
-        double result = calcular("soma", req.getParam1(), req.getParam2());
-        return new CalculadoraResponse(result);
-    }
-
-    @PostMapping("/subtracao")
-    public CalculadoraResponse subtracao(@RequestBody OperationRequest req) {
-        double result = calcular("subtracao", req.getParam1(), req.getParam2());
-        return new CalculadoraResponse(result);
-    }
-
-    @PostMapping("/multiplicacao")
-    public CalculadoraResponse multiplicacao(@RequestBody OperationRequest req) {
-        double result = calcular("multiplicacao", req.getParam1(), req.getParam2());
-        return new CalculadoraResponse(result);
-    }
-
-    @PostMapping("/divisao")
-    public CalculadoraResponse divisao(@RequestBody OperationRequest req) {
-        double result = calcular("divisao", req.getParam1(), req.getParam2());
-        return new CalculadoraResponse(result);
+        return a / b;
     }
 }
